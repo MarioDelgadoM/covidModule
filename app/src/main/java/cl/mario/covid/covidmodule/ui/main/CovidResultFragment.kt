@@ -20,6 +20,7 @@ class CovidResultFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initObserver()
         initListener()
         viewModel.getCovidResults()
@@ -33,6 +34,7 @@ class CovidResultFragment() : Fragment() {
 
         binding = FragmentCovidResultBinding.inflate(inflater, container, false).apply {
             covidViewModel = viewModel
+            lifecycleOwner = viewLifecycleOwner
         }
         return binding.root
     }
@@ -45,6 +47,7 @@ class CovidResultFragment() : Fragment() {
 
     private fun initObserver() {
         viewModel.covidInfoStateLiveData.observe(viewLifecycleOwner) {
+            println(it)
             if (it is State.Error) {
                 binding.errorView.loadError(it.message) {
                     viewModel.getCovidResults(viewModel.lastDateRequest)

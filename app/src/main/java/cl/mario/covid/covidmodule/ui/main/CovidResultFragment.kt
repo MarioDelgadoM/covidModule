@@ -1,14 +1,12 @@
 package cl.mario.covid.covidmodule.ui.main
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import cl.mario.covid.covidmodule.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import cl.mario.covid.covidmodule.databinding.FragmentCovidResultBinding
 import cl.mario.covid.covidmodule.util.CalendarManager
 import cl.mario.covid.covidmodule.util.State
@@ -25,7 +23,6 @@ class CovidResultFragment() : Fragment() {
         initObserver()
         initListener()
         viewModel.getCovidResults()
-
     }
 
     override fun onCreateView(
@@ -33,8 +30,9 @@ class CovidResultFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate<FragmentCovidResultBinding?>(inflater,R.layout.fragment_covid_result,container,false).apply {
-            viewModel = covidViewModel
+
+        binding = FragmentCovidResultBinding.inflate(inflater, container, false).apply {
+            covidViewModel = viewModel
         }
         return binding.root
     }
@@ -48,7 +46,7 @@ class CovidResultFragment() : Fragment() {
     private fun initObserver() {
         viewModel.covidInfoStateLiveData.observe(viewLifecycleOwner) {
             if (it is State.Error) {
-                binding.errorView?.loadError(it.message) {
+                binding.errorView.loadError(it.message) {
                     viewModel.getCovidResults(viewModel.lastDateRequest)
                 }
             }

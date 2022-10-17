@@ -8,5 +8,5 @@ import retrofit2.http.Query
 
 interface CovidApi {
     @GET(TOTAL)
-    suspend fun getData(@Query("date") date:String): Response<CovidResultsData>
+    suspend fun getData(@Query("date") date: String): Response<CovidResultsData>
 }

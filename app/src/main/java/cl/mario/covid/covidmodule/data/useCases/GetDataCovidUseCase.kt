@@ -18,8 +18,6 @@ class GetDataCovidUseCase @Inject constructor(
         return flow {
             emit(State.loading())
             val result = safeRequest { covidApi.getData(date) }
-
-            println(result)
             when(result){
                 is Result.Error -> emit(State.error(result.message))
                 is Result.Success -> emit(State.success(covidResultMapper.executeMapping(result.data)))

@@ -26,7 +26,7 @@ class CovidViewModel @Inject constructor(private val getDataCovidUseCase: GetDat
     fun getCovidResults(date: String = getCurrentDateFormatApi()) =
         handleView(getDataCovidUseCase.execute(date), _covidInfoStateLiveData,
             onLoading = {
-                        lastDateRequest = date
+                lastDateRequest = date
             },
             onSuccess = {
                 _covidDataResultLiveData.postValue(it)

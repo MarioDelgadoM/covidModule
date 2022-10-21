@@ -2,10 +2,13 @@ package cl.mario.covid.covidmodule.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import cl.mario.covid.covidmodule.data.mappers.CovidResultMapper
+import cl.mario.covid.covidmodule.data.models.CovidResultsData
 import cl.mario.covid.covidmodule.data.useCases.GetDataCovidUseCase
 import cl.mario.covid.covidmodule.ui.main.CovidViewModel
 import cl.mario.covid.covidmodule.ui.viewdata.CovidResultViewData
 import cl.mario.covid.covidmodule.util.State
+import cl.mario.covid.covidmodule.util.getCurrentDateFormatApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -38,6 +41,9 @@ class CovidViewModelTest {
     @Mock
     lateinit var covidStateObserver: Observer<State<CovidResultViewData>>
 
+    @Mock
+    lateinit var covidResultMapper: CovidResultMapper
+
     @Before
     fun onBefore() {
         MockitoAnnotations.openMocks(this)
@@ -57,9 +63,7 @@ class CovidViewModelTest {
     @Test
     fun should_changeLoadingState_when_getCovidResults() = runTest {
 
-        val dateCallApi = CovidViewFactory().getDateForCallApi()
-
-        whenever(getDataCovidUseCase.execute(dateCallApi)).thenReturn(
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(
             flowOf(State.loading())
         )
 
@@ -72,9 +76,14 @@ class CovidViewModelTest {
     fun should_changeSuccessState_when_getCovidResultsIsOk() = runTest {
 
         val covidResultViewData = CovidViewFactory().getCovidResultViewData()
-        val dateCallApi = CovidViewFactory().getDateForCallApi()
+        val covidVResultData = CovidViewFactory().getCovidResultData()
 
-        whenever(getDataCovidUseCase.execute(dateCallApi)).thenReturn(
+        stubCovidResultDataMapperMapToView(
+            covidResultsData = covidVResultData,
+            covidResultViewData = covidResultViewData
+        )
+
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(
             flowOf(State.success(covidResultViewData))
         )
 
@@ -86,10 +95,9 @@ class CovidViewModelTest {
     @Test(expected = Exception::class)
     fun should_changeErrorState_when_getCovidResultsErrorApi() = runTest {
 
-        val dateCallApi = CovidViewFactory().getDateForCallApi()
         val throwableError = Throwable(message = "State error")
 
-        whenever(getDataCovidUseCase.execute(dateCallApi)).thenReturn(
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(
             flowOf(State.loading())
         ).thenThrow(throwableError)
 
@@ -103,15 +111,23 @@ class CovidViewModelTest {
     fun should_setLastDateRequest_when_getCovidResults() = runTest {
 
         val covidResultViewData = CovidViewFactory().getCovidResultViewData()
-        val dateCallApi = CovidViewFactory().getDateForCallApi()
 
-        whenever(getDataCovidUseCase.execute(dateCallApi)).thenReturn(
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(
             flowOf(State.success(covidResultViewData))
         )
 
         covidViewModel.getCovidResults()
 
-        assert(covidViewModel.lastDateRequest == dateCallApi)
+        assert(covidViewModel.lastDateRequest == getCurrentDateFormatApi())
     }
+
+    private fun stubCovidResultDataMapperMapToView(
+        covidResultsData: CovidResultsData,
+        covidResultViewData: CovidResultViewData
+    ) {
+        whenever(covidResultMapper.executeMapping(covidResultsData))
+            .thenReturn(covidResultViewData)
+    }
+
 
 }

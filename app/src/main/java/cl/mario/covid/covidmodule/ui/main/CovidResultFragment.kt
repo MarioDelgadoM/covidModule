@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import cl.mario.covid.covidmodule.databinding.FragmentCovidResultBinding
 import cl.mario.covid.covidmodule.eventnavigation.EventObserver
 import cl.mario.covid.covidmodule.ui.events.CovidEvents.OpenDialogClickAction
+import cl.mario.covid.covidmodule.ui.events.CovidEvents.SeeResults
 import cl.mario.covid.covidmodule.util.CalendarManager
 import cl.mario.covid.covidmodule.util.State
 import cl.mario.covid.covidmodule.util.dateToStringApi
@@ -51,11 +52,14 @@ class CovidResultFragment() : Fragment() {
         viewModel.eventsLiveData.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is OpenDialogClickAction -> openDatePickerDialog()
+                is SeeResults -> seeResults()
             }
         })
 
         viewModel.covidInfoStateLiveData.observe(viewLifecycleOwner) {
-            if (it is State.Error) {
+            if (it is State.Success) {
+                seeResults()
+            } else if (it is State.Error) {
                 binding.errorView.loadError(it.message) {
                     viewModel.getCovidResults(viewModel.lastDateRequest)
                 }
@@ -78,5 +82,9 @@ class CovidResultFragment() : Fragment() {
             }
             show()
         }
+    }
+
+    private fun seeResults() {
+        viewModel.seeResultsEvent()
     }
 }

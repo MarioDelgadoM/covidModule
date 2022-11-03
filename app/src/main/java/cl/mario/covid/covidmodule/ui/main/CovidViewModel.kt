@@ -43,5 +43,9 @@ class CovidViewModel @Inject constructor(private val getDataCovidUseCase: GetDat
         _eventsLiveData.postValue(RouterEvent(CovidEvents.OpenDialogClickAction))
     }
 
+    fun seeResultsEvent() {
+        _eventsLiveData.postValue(RouterEvent(CovidEvents.SeeResults))
+    }
+
 }
 

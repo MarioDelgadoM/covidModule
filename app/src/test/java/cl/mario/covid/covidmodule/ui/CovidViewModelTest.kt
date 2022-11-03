@@ -13,6 +13,7 @@ import cl.mario.covid.covidmodule.util.State
 import cl.mario.covid.covidmodule.util.getCurrentDateFormatApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -69,10 +70,9 @@ class CovidViewModelTest {
     @Test
     fun should_changeLoadingState_when_getCovidResults() = runTest {
 
-        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi()))
-            .thenReturn(
-                flowOf(State.loading())
-            )
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(
+            flowOf(State.loading())
+        )
         covidViewModel.getCovidResults()
 
         verify(covidStateObserver).onChanged(refEq(State.loading()))
@@ -89,8 +89,14 @@ class CovidViewModelTest {
             covidResultViewData = covidResultViewData
         )
 
+        whenever(getDataCovidUseCase.execute(getCurrentDateFormatApi())).thenReturn(flow {
+            emit(State.loading())
+            emit(State.success(covidResultViewData))
+        })
+
         covidViewModel.getCovidResults()
 
+        verify(covidStateObserver).onChanged(refEq(State.loading()))
         verify(covidStateObserver).onChanged(refEq(State.success(covidResultViewData)))
     }
 
@@ -103,6 +109,7 @@ class CovidViewModelTest {
 
         covidViewModel.getCovidResults()
 
+        verify(covidStateObserver).onChanged(refEq(State.loading()))
         verify(covidStateObserver).onChanged(refEq(State.error("State error")))
     }
 
@@ -124,7 +131,23 @@ class CovidViewModelTest {
     fun should_openDatePickerDialog_when_pressButton() {
         covidViewModel.openDateDialog()
         verify(covidEventObserver).onChanged(
-            refEq(RouterEvent(CovidEvents.OpenDialogClickAction))
+            refEq(
+                RouterEvent(
+                    CovidEvents.OpenDialogClickAction
+                )
+            )
+        )
+    }
+
+    @Test
+    fun should_seeResult_when_isSuccess() {
+        covidViewModel.seeResultsEvent()
+        verify(covidEventObserver).onChanged(
+            refEq(
+                RouterEvent(
+                    CovidEvents.SeeResults
+                )
+            )
         )
     }
 
@@ -132,8 +155,7 @@ class CovidViewModelTest {
         covidResultsData: CovidResultsData,
         covidResultViewData: CovidResultViewData
     ) {
-        whenever(covidResultMapper.executeMapping(covidResultsData))
-            .thenReturn(covidResultViewData)
+        whenever(covidResultMapper.executeMapping(covidResultsData)).thenReturn(covidResultViewData)
     }
 
 }

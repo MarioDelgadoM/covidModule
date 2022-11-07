@@ -23,28 +23,25 @@ class CovidViewModel @Inject constructor(private val getDataCovidUseCase: GetDat
     private val _covidInfoStateLiveData = MutableLiveData<State<CovidResultViewData>>()
     val covidInfoStateLiveData: LiveData<State<CovidResultViewData>> = _covidInfoStateLiveData
 
-    private val _covidDataResultLiveData = MutableLiveData<CovidResultViewData>()
-    val covidDataResultLiveData: LiveData<CovidResultViewData> = _covidDataResultLiveData
-
     private val _eventsLiveData: MutableLiveData<RouterEvent<CovidEvents>> = MutableLiveData()
     val eventsLiveData = _eventsLiveData.toLiveData()
-
 
     fun getCovidResults(date: String = getCurrentDateFormatApi()) =
         handleView(getDataCovidUseCase.execute(date), _covidInfoStateLiveData,
             onLoading = {
                 lastDateRequest = date
-            },
-            onSuccess = {
-                _covidDataResultLiveData.postValue(it)
             })
 
     fun openDateDialog() {
         _eventsLiveData.postValue(RouterEvent(CovidEvents.OpenDialogClickAction))
     }
 
-    fun seeResultsEvent() {
-        _eventsLiveData.postValue(RouterEvent(CovidEvents.SeeResults))
+    fun seeResultsEvent(data: CovidResultViewData) {
+        _eventsLiveData.postValue(RouterEvent(CovidEvents.SeeResults(data)))
+    }
+
+    fun fetchCovidResults(date: String) {
+        _eventsLiveData.postValue(RouterEvent(CovidEvents.FetchCovidResults(date)))
     }
 
 }

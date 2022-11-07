@@ -141,11 +141,24 @@ class CovidViewModelTest {
 
     @Test
     fun should_seeResult_when_isSuccess() {
-        covidViewModel.seeResultsEvent()
+        val covidResultViewData = CovidViewFactory().getCovidResultViewData()
+        covidViewModel.seeResultsEvent(covidResultViewData)
         verify(covidEventObserver).onChanged(
             refEq(
                 RouterEvent(
-                    CovidEvents.SeeResults
+                    CovidEvents.SeeResults(covidResultViewData)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun should_fetchCovidResult_when_isCallingTheAPI(){
+        covidViewModel.fetchCovidResults(getCurrentDateFormatApi())
+        verify(covidEventObserver).onChanged(
+            refEq(
+                RouterEvent(
+                    CovidEvents.FetchCovidResults(getCurrentDateFormatApi())
                 )
             )
         )

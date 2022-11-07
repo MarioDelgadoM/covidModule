@@ -7,7 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import cl.mario.covid.covidmodule.R
 import cl.mario.covid.covidmodule.databinding.FragmentCovidResultBinding
+import cl.mario.covid.covidmodule.eventnavigation.EventObserver
+import cl.mario.covid.covidmodule.ui.events.CovidEvents
+import cl.mario.covid.covidmodule.ui.events.CovidEvents.OpenDialogClickAction
+import cl.mario.covid.covidmodule.ui.events.CovidEvents.SeeResults
+import cl.mario.covid.covidmodule.ui.viewdata.CovidResultViewData
 import cl.mario.covid.covidmodule.util.CalendarManager
 import cl.mario.covid.covidmodule.util.State
 import cl.mario.covid.covidmodule.util.dateToStringApi
@@ -30,7 +36,7 @@ class CovidResultFragment() : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = FragmentCovidResultBinding.inflate(inflater, container, false).apply {
             covidViewModel = viewModel
@@ -46,11 +52,32 @@ class CovidResultFragment() : Fragment() {
     }
 
     private fun initObserver() {
+        viewModel.eventsLiveData.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is OpenDialogClickAction -> {
+                    openDatePickerDialog()
+                }
+                is SeeResults -> {
+                    setData(it.data)
+                }
+                is CovidEvents.FetchCovidResults -> {
+                    viewModel.getCovidResults(it.date)
+                }
+            }
+        })
+
         viewModel.covidInfoStateLiveData.observe(viewLifecycleOwner) {
-            println(it)
-            if (it is State.Error) {
-                binding.errorView.loadError(it.message) {
-                    viewModel.getCovidResults(viewModel.lastDateRequest)
+            when (it) {
+                is State.Error -> {
+                    binding.errorView.loadError(it.message) {
+                        viewModel.fetchCovidResults(viewModel.lastDateRequest)
+                    }
+                }
+                is State.Success -> {
+                    viewModel.seeResultsEvent(it.data)
+                }
+                else -> {
+                    //do nothing
                 }
             }
         }
@@ -59,13 +86,25 @@ class CovidResultFragment() : Fragment() {
     private fun initListener() {
         binding.apply {
             chooseDateDialogBtn.setOnClickListener {
-                CalendarManager(context).apply {
-                    setOnSelectedListener { date ->
-                        viewModel.getCovidResults(dateToStringApi(date))
-                    }
-                    show()
-                }
+                viewModel.openDateDialog()
             }
+        }
+    }
+
+    private fun openDatePickerDialog() {
+        CalendarManager(context).apply {
+            setOnSelectedListener { date ->
+                viewModel.fetchCovidResults(dateToStringApi(date))
+            }
+            show()
+        }
+    }
+
+    private fun setData(data: CovidResultViewData) {
+        binding.apply {
+            tvDate.text = getString(R.string.choose_date, data.date)
+            tvConfirm.text = getString(R.string.confirmed_cases, data.confirmed)
+            tvDeath.text = getString(R.string.deceased_people, data.death)
         }
     }
 }

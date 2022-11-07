@@ -15,12 +15,10 @@ open class DefaultViewModel() : ViewModel() {
     fun <T> handleView(
         flow: Flow<State<T>>,
         liveData: MutableLiveData<State<T>>,
-        onLoading: () -> Unit = {},
-        onSuccess: (T) -> Unit = {}
+        onLoading: () -> Unit = {}
     ) = viewModelScope.launch {
         onLoading()
         flow.collect {
-            if (it is State.Success) onSuccess(it.data)
             liveData.postValue(it)
             setStateView(it)
         }

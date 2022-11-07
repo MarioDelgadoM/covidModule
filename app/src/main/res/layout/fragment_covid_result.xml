@@ -29,7 +29,6 @@
 
             <TextView
                 android:id="@+id/tvDate"
-                android:text="@{covidViewModel.covidDataResultLiveData.date}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="100dp"
@@ -42,7 +41,6 @@
 
             <TextView
                 android:id="@+id/tvConfirm"
-                android:text="@{@string/confirmed_cases(Integer.toString(covidViewModel.covidDataResultLiveData.confirmed))}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +50,6 @@
 
             <TextView
                 android:id="@+id/tvDeath"
-                android:text="@{@string/deceased_people(Integer.toString(covidViewModel.covidDataResultLiveData.death))}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +85,7 @@
             android:id="@+id/errorView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{covidViewModel.isError() == true ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{covidViewModel.isError() == true ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -98,7 +95,7 @@
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{covidViewModel.isLoading() == true ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{covidViewModel.isLoading() == true ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

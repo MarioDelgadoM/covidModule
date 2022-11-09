@@ -102,7 +102,7 @@ class CovidResultFragment() : Fragment() {
 
     private fun setData(data: CovidResultViewData) {
         binding.apply {
-            tvDate.text = getString(R.string.choose_date, data.date)
+            tvDate.text = getString(R.string.date_title, data.date)
             tvConfirm.text = getString(R.string.confirmed_cases, data.confirmed)
             tvDeath.text = getString(R.string.deceased_people, data.death)
         }
